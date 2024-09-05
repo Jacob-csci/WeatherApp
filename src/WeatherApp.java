@@ -60,6 +60,30 @@ public class WeatherApp {
             JSONArray time = (JSONArray) hourly.get("time");
             int index = findIndexOfCurrentTime(time);
 
+            JSONArray temperatureData = (JSONArray) hourly.get("temperature_2m");
+            double temperature = (double) temperatureData.get(index);
+
+            //get weather code
+            JSONArray weathercode = (JSONArray) hourly.get("weather_code");
+            String weatherCondition = convertWeatherCode((long) weathercode.get(index));
+
+            //humidity
+            JSONArray relativeHumidity = (JSONArray) hourly.get("relative_humidity_2m");
+            long humidity = (long) relativeHumidity.get(index);
+
+            //Windspeed
+            JSONArray windspeedData = (JSONArray) hourly.get("wind_speed_10m");
+            double windspeed = (double) windspeedData.get(index);
+
+            //build json data we are going to recieve for the frontend
+            JSONObject weatherData = new JSONObject();
+            weatherData.put("temperature", temperature);
+            weatherData.put("weather_condition", weatherCondition);
+            weatherData.put("humidity", humidity);
+            weatherData.put("windspeed", windspeed);
+
+            return weatherData;
+
 
         }catch(Exception e){
             e.printStackTrace();
@@ -139,18 +163,49 @@ public class WeatherApp {
     private static int findIndexOfCurrentTime(JSONArray timeList){
 
         String currentTime = getCurrentTime();
+
+        // iterate through time list to see which matches ours
+        for(int i = 0; i < timeList.size(); i++){
+            String time = (String) timeList.get(i);
+
+            if(time.equalsIgnoreCase(currentTime)){
+                //return index
+                return i;
+            }
+        }
         return 0;
     }
 
-    private static String getCurrentTime(){
+    public static String getCurrentTime(){
         //get current date and time
 
         LocalDateTime currentDateTime = LocalDateTime.now();
         
         //format time from api
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH':00'");
-        return null;
+
+        //print current date and time 
+        String formattedDateTime = currentDateTime.format(formatter);
+
+
+        return formattedDateTime;
         
+    }
+    //Convert weather code to something readable
+    private static String convertWeatherCode(long weathercode){
+        String weatherCondition = "";
+        if(weathercode == 0L){
+            weatherCondition = "Clear";
+        }else if(weathercode <= 3L && weathercode > 0){
+            weatherCondition = "Cloudy";
+        }else if((weathercode >= 51L && weathercode <= 67L) || (weathercode >= 80L && weathercode <= 99L)){
+            weatherCondition = "Rain";
+        }else if(weathercode >= 71L && weathercode <= 77L){
+            weatherCondition = "Snow";
+        }
+
+        return weatherCondition;
+
     }
 
 }

@@ -7,9 +7,10 @@ public class AppLauncher {
             @Override
             public void run(){
                 //Display Gui
-                // new WeatherAppGui().setVisible(true);
+                new WeatherAppGui().setVisible(true);
 
-                System.out.println(WeatherApp.getLocationData("Tokyo"));
+                // System.out.println(WeatherApp.getLocationData("Tokyo"));
+                // System.out.println(WeatherApp.getCurrentTime());
             }
         });
     }
